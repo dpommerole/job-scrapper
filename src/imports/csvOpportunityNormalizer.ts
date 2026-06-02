@@ -103,11 +103,11 @@ export function validateCsvOpportunityRow(row: CsvRow): string[] {
     }
   }
 
-  if (optional(row.remotePolicy) && normalizeRemotePolicy(row.remotePolicy) === "unknown") {
+  if (optional(row.remotePolicy) && normalizeRemotePolicy(row.remotePolicy) === "unknown" && normalize(row.remotePolicy) !== "unknown") {
     reasons.push(`Invalid remotePolicy: ${row.remotePolicy}`);
   }
 
-  if (optional(row.contractType) && normalizeContractType(row.contractType) === "unknown") {
+  if (optional(row.contractType) && normalizeContractType(row.contractType) === "unknown" && normalize(row.contractType) !== "unknown") {
     reasons.push(`Invalid contractType: ${row.contractType}`);
   }
 
