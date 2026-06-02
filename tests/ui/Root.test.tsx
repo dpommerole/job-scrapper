@@ -138,4 +138,52 @@ describe("Root", () => {
     await screen.findByRole("heading", { level: 1, name: "Manual Vue opportunity" });
     expect(window.location.pathname).toBe("/opportunities/manual-created-opportunity");
   });
+
+  it("loads outreach and persists outreach status updates", async () => {
+    window.history.pushState({}, "", "/outreach");
+    const initialOutreach = {
+      id: "outreach-1",
+      opportunityId: idealVueFreelanceLille.id,
+      recruiterName: "Marie",
+      recruiterCompany: "Acme Recruiting",
+      relatedOpportunityTitle: idealVueFreelanceLille.title,
+      channel: "email",
+      status: "sent",
+      message: "Bonjour",
+      followUpAt: "2026-06-01",
+      createdAt: "2026-05-28T10:00:00.000Z",
+      updatedAt: "2026-05-28T10:00:00.000Z"
+    };
+    const updatedOutreach = {
+      ...initialOutreach,
+      status: "replied",
+      repliedAt: "2026-06-02T10:00:00.000Z"
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ opportunities: [idealVueFreelanceLille] })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ outreachItems: [initialOutreach] })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ outreach: updatedOutreach })
+        })
+    );
+
+    render(<Root />);
+
+    await screen.findByRole("heading", { level: 2, name: "Marie" });
+    fireEvent.click(screen.getByRole("button", { name: "Mark replied" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("replied")).toBeInTheDocument();
+    });
+  });
 });

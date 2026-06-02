@@ -65,9 +65,29 @@ export const importRuns = sqliteTable("import_runs", {
   updatedAt: text("updated_at").notNull()
 });
 
+export const outreachItems = sqliteTable("outreach_items", {
+  id: text("id").primaryKey(),
+  opportunityId: text("opportunity_id").references(() => opportunities.id),
+  recruiterName: text("recruiter_name"),
+  recruiterCompany: text("recruiter_company"),
+  relatedOpportunityTitle: text("related_opportunity_title"),
+  channel: text("channel").notNull(),
+  status: text("status").notNull(),
+  subject: text("subject"),
+  message: text("message").notNull(),
+  sentAt: text("sent_at"),
+  followUpAt: text("follow_up_at"),
+  repliedAt: text("replied_at"),
+  notes: text("notes"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull()
+});
+
 export type SourceRow = typeof sources.$inferSelect;
 export type NewSourceRow = typeof sources.$inferInsert;
 export type OpportunityRow = typeof opportunities.$inferSelect;
 export type NewOpportunityRow = typeof opportunities.$inferInsert;
 export type ImportRunRow = typeof importRuns.$inferSelect;
 export type NewImportRunRow = typeof importRuns.$inferInsert;
+export type OutreachItemRow = typeof outreachItems.$inferSelect;
+export type NewOutreachItemRow = typeof outreachItems.$inferInsert;

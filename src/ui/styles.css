@@ -260,6 +260,116 @@ h1 {
   gap: 16px;
 }
 
+.outreach-draft-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 0.35fr) minmax(160px, 0.35fr) auto;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 18px;
+  border: 1px solid #d8ddd5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+}
+
+.outreach-draft-form label,
+.outreach-actions label {
+  display: grid;
+  gap: 6px;
+  color: #526157;
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.outreach-draft-form select,
+.outreach-draft-form input,
+.outreach-actions input,
+.outreach-actions textarea {
+  width: 100%;
+  border: 1px solid #cbd6c7;
+  border-radius: 6px;
+  background: #fbfcfa;
+  color: #16201b;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 9px 10px;
+  text-transform: none;
+}
+
+.outreach-draft-form button,
+.outreach-actions button {
+  border: 1px solid #b9c8b4;
+  border-radius: 6px;
+  background: #eef2ec;
+  color: #223429;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 10px 12px;
+}
+
+.outreach-draft-form button:disabled,
+.outreach-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.outreach-list {
+  display: grid;
+  gap: 12px;
+}
+
+.outreach-row {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 0.6fr);
+  gap: 18px;
+  border: 1px solid #d8ddd5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 18px;
+}
+
+.outreach-title-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.outreach-title-line h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.status-badge {
+  border-radius: 999px;
+  background: #e7ece4;
+  color: #29372f;
+  padding: 4px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-badge.urgent {
+  background: #f5dfd1;
+  color: #5c2f1f;
+}
+
+.outreach-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .detail-panel {
   border: 1px solid #d8ddd5;
   border-radius: 8px;
