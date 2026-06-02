@@ -92,6 +92,35 @@ describe("SQLite repositories", () => {
     expect(opportunityRepository.list().map((opportunity) => opportunity.id)).toEqual(["newer", "older"]);
   });
 
+  it("updates opportunity status and notes", () => {
+    opportunityRepository.save(idealVueFreelanceLille);
+
+    const updated = opportunityRepository.updateStatusAndNotes(idealVueFreelanceLille.id, {
+      status: "contacted",
+      notes: "Intro sent by email."
+    });
+
+    expect(updated).toMatchObject({
+      id: idealVueFreelanceLille.id,
+      status: "contacted",
+      notes: "Intro sent by email."
+    });
+    expect(updated?.updatedAt).toBeDefined();
+    expect(opportunityRepository.findById(idealVueFreelanceLille.id)).toMatchObject({
+      status: "contacted",
+      notes: "Intro sent by email."
+    });
+  });
+
+  it("returns undefined when updating a missing opportunity", () => {
+    expect(
+      opportunityRepository.updateStatusAndNotes("missing", {
+        status: "contacted",
+        notes: "No-op"
+      })
+    ).toBeUndefined();
+  });
+
   it("creates missing parent directories for file-backed databases", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "job-scrapper-db-"));
     const databasePath = join(tempRoot, "nested", "job-tracker.sqlite");

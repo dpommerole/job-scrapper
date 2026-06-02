@@ -1,12 +1,20 @@
-import type { Opportunity } from "../../domain/index.js";
+import type { Opportunity, OpportunityStatus } from "../../domain/index.js";
 import { OpportunityDetail } from "../components/opportunities/OpportunityDetail.js";
 import { createOpportunityDetailViewModel } from "../view-models/opportunityDetailViewModel.js";
 
 export type OpportunityDetailPageProps = {
   opportunity: Opportunity | undefined;
+  isSaving?: boolean;
+  saveError?: string | undefined;
+  onUpdateOpportunity?: (id: string, update: { status: OpportunityStatus; notes: string }) => void;
 };
 
-export function OpportunityDetailPage({ opportunity }: OpportunityDetailPageProps) {
+export function OpportunityDetailPage({
+  opportunity,
+  isSaving,
+  saveError,
+  onUpdateOpportunity
+}: OpportunityDetailPageProps) {
   if (!opportunity) {
     return (
       <section className="page-section">
@@ -24,8 +32,18 @@ export function OpportunityDetailPage({ opportunity }: OpportunityDetailPageProp
 
   return (
     <section className="page-section page-section-wide">
-      <OpportunityDetail opportunity={createOpportunityDetailViewModel(opportunity)} />
+      <OpportunityDetail
+        opportunity={createOpportunityDetailViewModel(opportunity)}
+        isSaving={isSaving}
+        saveError={saveError}
+        onUpdate={
+          onUpdateOpportunity
+            ? (update) => {
+                onUpdateOpportunity(opportunity.id, update);
+              }
+            : undefined
+        }
+      />
     </section>
   );
 }
-

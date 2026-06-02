@@ -1,4 +1,4 @@
-import type { Opportunity } from "../../domain/index.js";
+import type { Opportunity, OpportunityStatus } from "../../domain/index.js";
 import {
   formatContractType,
   formatOpportunityClass,
@@ -26,6 +26,7 @@ export type OpportunityDetailViewModel = {
   score: string;
   opportunityClass: string;
   status: string;
+  statusValue: OpportunityStatus;
   positiveSignals: string[];
   negativeSignals: string[];
   missingInformation: string[];
@@ -52,6 +53,7 @@ export function createOpportunityDetailViewModel(opportunity: Opportunity): Oppo
     score: formatOpportunityScore(opportunity.score),
     opportunityClass: formatOpportunityClass(opportunity.opportunityClass),
     status: formatOpportunityStatus(opportunity.status),
+    statusValue: opportunity.status,
     positiveSignals: opportunity.positiveSignals ?? [],
     negativeSignals: opportunity.negativeSignals ?? [],
     missingInformation: opportunity.missingInformation ?? [],
@@ -78,4 +80,3 @@ function formatRateRange(opportunity: Opportunity): string {
 
   return "Unknown rate";
 }
-

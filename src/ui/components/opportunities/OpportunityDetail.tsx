@@ -1,10 +1,16 @@
 import type { OpportunityDetailViewModel } from "../../view-models/opportunityDetailViewModel.js";
+import type { OpportunityStatus } from "../../../domain/index.js";
 
 export type OpportunityDetailProps = {
   opportunity: OpportunityDetailViewModel;
+  isSaving?: boolean;
+  saveError?: string | undefined;
+  onUpdate?: (update: { status: OpportunityStatus; notes: string }) => void;
 };
 
-export function OpportunityDetail({ opportunity }: OpportunityDetailProps) {
+const statuses: OpportunityStatus[] = ["new", "interesting", "contacted", "replied", "interview", "offer", "rejected", "archived"];
+
+export function OpportunityDetail({ opportunity, isSaving = false, saveError, onUpdate }: OpportunityDetailProps) {
   return (
     <div className="detail-layout">
       <section className="detail-panel detail-panel-main" aria-label="Opportunity description">
@@ -71,9 +77,43 @@ export function OpportunityDetail({ opportunity }: OpportunityDetailProps) {
         <SignalList title="Missing details" items={opportunity.missingInformation} emptyText="No missing information recorded." />
       </section>
 
-      <section className="detail-panel detail-panel-main" aria-label="Notes">
-        <h2>Notes</h2>
-        <p className="long-text">{opportunity.notes}</p>
+      <section className="detail-panel detail-panel-main" aria-label="Status and notes">
+        <h2>Status and notes</h2>
+        {onUpdate ? (
+          <form
+            className="detail-form"
+            key={`${opportunity.id}-${opportunity.statusValue}-${opportunity.notes}`}
+            onSubmit={(event) => {
+              event.preventDefault();
+              const formData = new FormData(event.currentTarget);
+              onUpdate({
+                status: formData.get("status") as OpportunityStatus,
+                notes: String(formData.get("notes") ?? "")
+              });
+            }}
+          >
+            <label>
+              Status
+              <select name="status" defaultValue={opportunity.statusValue}>
+                {statuses.map((status) => (
+                  <option value={status} key={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Notes
+              <textarea name="notes" defaultValue={opportunity.notes === "No notes yet." ? "" : opportunity.notes} rows={6} />
+            </label>
+            {saveError ? <p className="form-error">{saveError}</p> : null}
+            <button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save changes"}
+            </button>
+          </form>
+        ) : (
+          <p className="long-text">{opportunity.notes}</p>
+        )}
       </section>
     </div>
   );
@@ -123,4 +163,3 @@ function SignalList({ title, items, emptyText }: { title: string; items: string[
     </div>
   );
 }
-
