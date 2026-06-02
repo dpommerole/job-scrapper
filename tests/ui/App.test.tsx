@@ -21,13 +21,19 @@ describe("App layout and routes", () => {
   it.each([
     ["/", "Dashboard"],
     ["/sources", "Sources"],
-    ["/outreach", "Outreach"],
     ["/reports", "Reports"]
   ])("renders the %s page title", (pathname, title) => {
     render(<App pathname={pathname} />);
 
     expect(screen.getByRole("heading", { level: 1, name: title })).toBeInTheDocument();
     expect(screen.getByText("No data yet")).toBeInTheDocument();
+  });
+
+  it("renders the outreach page route", () => {
+    render(<App pathname="/outreach" />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Outreach" })).toBeInTheDocument();
+    expect(screen.getByText("No outreach yet")).toBeInTheDocument();
   });
 
   it("renders the opportunities page route", () => {

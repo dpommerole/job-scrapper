@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CreateManualOpportunityInput } from "../application/index.js";
-import type { Opportunity, OpportunityStatus } from "../domain/index.js";
+import type { Opportunity, OpportunityStatus, Outreach, OutreachChannel, OutreachStatus } from "../domain/index.js";
 import { App } from "./App.js";
 
 type OpportunitiesApiResponse = {
@@ -17,12 +17,30 @@ type OpportunityCreateApiResponse = {
   errors?: string[];
 };
 
+type OutreachApiResponse = {
+  outreachItems?: Outreach[];
+};
+
+type OutreachCreateApiResponse = {
+  outreach?: Outreach;
+  error?: string;
+};
+
+type OutreachUpdateApiResponse = {
+  outreach?: Outreach;
+  error?: string;
+};
+
 export function Root() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [isSavingOpportunity, setIsSavingOpportunity] = useState(false);
   const [opportunitySaveError, setOpportunitySaveError] = useState<string | undefined>();
   const [isCreatingOpportunity, setIsCreatingOpportunity] = useState(false);
   const [opportunityCreateError, setOpportunityCreateError] = useState<string | undefined>();
+  const [outreachItems, setOutreachItems] = useState<Outreach[]>([]);
+  const [isCreatingOutreach, setIsCreatingOutreach] = useState(false);
+  const [isSavingOutreach, setIsSavingOutreach] = useState(false);
+  const [outreachSaveError, setOutreachSaveError] = useState<string | undefined>();
 
   useEffect(() => {
     let isMounted = true;
@@ -37,6 +55,29 @@ export function Root() {
       .catch(() => {
         if (isMounted) {
           setOpportunities([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (window.location.pathname !== "/outreach") return;
+
+    let isMounted = true;
+
+    fetch("/api/outreach")
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(response.statusText))))
+      .then((payload: OutreachApiResponse) => {
+        if (isMounted && Array.isArray(payload.outreachItems)) {
+          setOutreachItems(payload.outreachItems);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setOutreachItems([]);
         }
       });
 
@@ -108,6 +149,68 @@ export function Root() {
       });
   }
 
+  function createOutreachDraft(input: { opportunityId: string; channel: OutreachChannel; followUpAt?: string }) {
+    setIsCreatingOutreach(true);
+    setOutreachSaveError(undefined);
+
+    fetch("/api/outreach", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(input)
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as OutreachCreateApiResponse;
+        if (!response.ok || !payload.outreach) {
+          throw new Error(payload.error ?? response.statusText);
+        }
+
+        return payload.outreach;
+      })
+      .then((createdOutreach) => {
+        setOutreachItems((current) => [createdOutreach, ...current]);
+      })
+      .catch((error: unknown) => {
+        setOutreachSaveError(error instanceof Error ? error.message : "Failed to create outreach draft");
+      })
+      .finally(() => {
+        setIsCreatingOutreach(false);
+      });
+  }
+
+  function updateOutreachItem(id: string, update: { status?: OutreachStatus; followUpAt?: string; notes?: string }) {
+    setIsSavingOutreach(true);
+    setOutreachSaveError(undefined);
+
+    fetch(`/api/outreach/${encodeURIComponent(id)}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(update)
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as OutreachUpdateApiResponse;
+        if (!response.ok || !payload.outreach) {
+          throw new Error(payload.error ?? response.statusText);
+        }
+
+        return payload.outreach;
+      })
+      .then((updatedOutreach) => {
+        setOutreachItems((current) =>
+          current.map((outreach) => (outreach.id === updatedOutreach.id ? updatedOutreach : outreach))
+        );
+      })
+      .catch((error: unknown) => {
+        setOutreachSaveError(error instanceof Error ? error.message : "Failed to save outreach");
+      })
+      .finally(() => {
+        setIsSavingOutreach(false);
+      });
+  }
+
   return (
     <App
       opportunities={opportunities}
@@ -117,6 +220,12 @@ export function Root() {
       isCreatingOpportunity={isCreatingOpportunity}
       opportunityCreateError={opportunityCreateError}
       onCreateOpportunity={createOpportunity}
+      outreachItems={outreachItems}
+      isCreatingOutreach={isCreatingOutreach}
+      isSavingOutreach={isSavingOutreach}
+      outreachSaveError={outreachSaveError}
+      onCreateOutreachDraft={createOutreachDraft}
+      onUpdateOutreach={updateOutreachItem}
     />
   );
 }

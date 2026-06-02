@@ -1,10 +1,11 @@
 import type { CreateManualOpportunityInput } from "../application/index.js";
-import type { Opportunity, OpportunityStatus } from "../domain/index.js";
+import type { Opportunity, OpportunityStatus, Outreach, OutreachChannel, OutreachStatus } from "../domain/index.js";
 import { AppLayout } from "./components/AppLayout.js";
 import { EmptyPage } from "./pages/EmptyPage.js";
 import { NotFoundPage } from "./pages/NotFoundPage.js";
 import { OpportunityCreatePage } from "./pages/OpportunityCreatePage.js";
 import { OpportunityDetailPage } from "./pages/OpportunityDetailPage.js";
+import { OutreachPage } from "./pages/OutreachPage.js";
 import { OpportunitiesPage } from "./pages/OpportunitiesPage.js";
 import { resolveRoute } from "./routes.js";
 
@@ -17,6 +18,15 @@ export type AppProps = {
   isCreatingOpportunity?: boolean;
   opportunityCreateError?: string | undefined;
   onCreateOpportunity?: (input: CreateManualOpportunityInput) => void;
+  outreachItems?: Outreach[];
+  isCreatingOutreach?: boolean;
+  isSavingOutreach?: boolean;
+  outreachSaveError?: string | undefined;
+  onCreateOutreachDraft?: (input: { opportunityId: string; channel: OutreachChannel; followUpAt?: string }) => void;
+  onUpdateOutreach?: (
+    id: string,
+    update: { status?: OutreachStatus; channel?: OutreachChannel; followUpAt?: string; notes?: string }
+  ) => void;
 };
 
 export function App({
@@ -27,7 +37,13 @@ export function App({
   onUpdateOpportunity,
   isCreatingOpportunity,
   opportunityCreateError,
-  onCreateOpportunity
+  onCreateOpportunity,
+  outreachItems = [],
+  isCreatingOutreach,
+  isSavingOutreach,
+  outreachSaveError,
+  onCreateOutreachDraft,
+  onUpdateOutreach
 }: AppProps) {
   const route = resolveRoute(pathname);
   const opportunityId = getOpportunityIdFromPath(pathname);
@@ -48,6 +64,16 @@ export function App({
           isSaving={isSavingOpportunity}
           saveError={opportunitySaveError}
           onUpdateOpportunity={onUpdateOpportunity}
+        />
+      ) : route?.path === "/outreach" ? (
+        <OutreachPage
+          opportunities={opportunities}
+          outreachItems={outreachItems}
+          isCreatingOutreach={isCreatingOutreach}
+          isSavingOutreach={isSavingOutreach}
+          outreachSaveError={outreachSaveError}
+          onCreateOutreachDraft={onCreateOutreachDraft}
+          onUpdateOutreach={onUpdateOutreach}
         />
       ) : route ? (
         <EmptyPage route={route} />
