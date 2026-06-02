@@ -254,6 +254,104 @@ h1 {
   font-weight: 650;
 }
 
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 16px;
+}
+
+.detail-panel {
+  border: 1px solid #d8ddd5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 20px;
+}
+
+.detail-panel-main {
+  grid-column: span 1;
+}
+
+.detail-heading h1 {
+  margin-bottom: 10px;
+}
+
+.detail-subtitle {
+  margin-bottom: 0;
+  color: #526157;
+  line-height: 1.45;
+}
+
+.long-text {
+  color: #24352b;
+  line-height: 1.72;
+  white-space: pre-wrap;
+}
+
+.detail-score-grid,
+.detail-facts {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.detail-score-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.detail-facts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detail-score-grid dt,
+.detail-facts dt {
+  margin-bottom: 4px;
+  color: #66736b;
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.detail-score-grid dd,
+.detail-facts dd {
+  margin: 0;
+  color: #1c2b22;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.source-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: #254c31;
+  font-weight: 750;
+  text-underline-offset: 3px;
+}
+
+.detail-subsection + .detail-subsection {
+  margin-top: 18px;
+}
+
+.detail-panel h2 {
+  margin-bottom: 14px;
+  font-size: 1rem;
+}
+
+.detail-subsection h3 {
+  margin: 0 0 8px;
+  color: #526157;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.signal-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: #24352b;
+  line-height: 1.45;
+}
+
 @media (max-width: 760px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -278,5 +376,14 @@ h1 {
 
   .opportunity-facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-score-grid,
+  .detail-facts {
+    grid-template-columns: 1fr;
   }
 }
