@@ -1,7 +1,11 @@
 import Database from "better-sqlite3";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Source } from "../../src/domain/index.js";
 import {
+  createSqliteDatabase,
   createAppDatabase,
   type SqliteDatabase,
   OpportunityRepository,
@@ -83,5 +87,21 @@ describe("SQLite repositories", () => {
     });
 
     expect(opportunityRepository.list().map((opportunity) => opportunity.id)).toEqual(["newer", "older"]);
+  });
+
+  it("creates missing parent directories for file-backed databases", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "job-scrapper-db-"));
+    const databasePath = join(tempRoot, "nested", "job-tracker.sqlite");
+    const fileBackedSqlite = createSqliteDatabase(databasePath);
+
+    try {
+      runInitialMigration(fileBackedSqlite);
+      expect(fileBackedSqlite.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sources'").get()).toEqual({
+        name: "sources"
+      });
+    } finally {
+      fileBackedSqlite.close();
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
   });
 });
