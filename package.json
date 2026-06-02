@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "db:generate": "drizzle-kit generate",
+    "job-tracker": "npm run build --silent && node dist/src/cli/job-tracker.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
