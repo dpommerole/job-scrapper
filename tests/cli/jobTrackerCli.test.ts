@@ -1,4 +1,5 @@
 import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import Database from "better-sqlite3";
@@ -34,6 +35,7 @@ describe("job-tracker CLI", () => {
     for (const tempRoot of tempRoots.splice(0)) {
       rmSync(tempRoot, { recursive: true, force: true });
     }
+    rmSync("reports/2026-06-08-weekly-market-report.md", { force: true });
   });
 
   it("imports a CSV file and prints a summary", () => {
@@ -97,6 +99,44 @@ describe("job-tracker CLI", () => {
 
     expect(exitCode).toBe(1);
     expect(stdout).toEqual([]);
-    expect(stderr).toEqual(["Usage: job-tracker import <csv-file>"]);
+    expect(stderr).toEqual([
+      "Usage: job-tracker import <csv-file>",
+      "Usage: job-tracker report weekly"
+    ]);
+  });
+
+  it("generates a weekly report from the database", () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "job-tracker-cli-report-"));
+    tempRoots.push(tempRoot);
+    const databasePath = join(tempRoot, "job-tracker.sqlite");
+    const { stdout: importStdout, stderr: importStderr, io: importIo } = createIoCapture();
+
+    expect(
+      runJobTrackerCli(["import", exampleCsvPath], {
+        databasePath,
+        now: "2026-06-02T12:00:00.000Z",
+        io: importIo
+      })
+    ).toBe(0);
+    expect(importStderr).toEqual([]);
+    expect(importStdout[0]).toBe("Import completed");
+
+    const { stdout, stderr, io } = createIoCapture();
+    const exitCode = runJobTrackerCli(["report", "weekly"], {
+      databasePath,
+      now: "2026-06-08T09:00:00.000Z",
+      io
+    });
+
+    expect(exitCode).toBe(0);
+    expect(stderr).toEqual([]);
+    expect(stdout).toEqual([
+      "Report generated: reports/2026-06-08-weekly-market-report.md",
+      "Collected opportunities: 3",
+      "Hot opportunities: 1",
+      "Interesting opportunities: 1"
+    ]);
+    expect(existsSync("reports/2026-06-08-weekly-market-report.md")).toBe(true);
+    expect(readFileSync("reports/2026-06-08-weekly-market-report.md", "utf8")).toContain("Lead Frontend Vue 3 TypeScript");
   });
 });

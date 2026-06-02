@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { importCsvOpportunities } from "../application/index.js";
+import { generateWeeklyReport, importCsvOpportunities } from "../application/index.js";
 import {
   createAppDatabase,
   createSqliteDatabase,
@@ -26,16 +26,28 @@ export function runJobTrackerCli(args: string[], options: RunJobTrackerCliOption
     stdout: console.log,
     stderr: console.error
   };
-  const [command, filePath] = args;
+  const [command, subcommandOrFilePath] = args;
+
+  if (command === "report") {
+    return runReportCommand(args.slice(1), options, io);
+  }
 
   if (command !== "import") {
-    io.stderr("Usage: job-tracker import <csv-file>");
+    printUsage(io);
     return 1;
   }
 
+  return runImportCommand(subcommandOrFilePath, options, io);
+}
+
+function runImportCommand(
+  filePath: string | undefined,
+  options: RunJobTrackerCliOptions,
+  io: CliIo
+): number {
   if (!filePath) {
     io.stderr("Missing CSV file path.");
-    io.stderr("Usage: job-tracker import <csv-file>");
+    printUsage(io);
     return 1;
   }
 
@@ -89,4 +101,48 @@ export function runJobTrackerCli(args: string[], options: RunJobTrackerCliOption
   } finally {
     sqlite.close();
   }
+}
+
+function runReportCommand(
+  args: string[],
+  options: RunJobTrackerCliOptions,
+  io: CliIo
+): number {
+  const [reportType] = args;
+
+  if (reportType !== "weekly") {
+    io.stderr("Usage: job-tracker report weekly");
+    return 1;
+  }
+
+  const sqlite = createSqliteDatabase(options.databasePath);
+
+  try {
+    runMigrations(sqlite);
+    const db = createAppDatabase(sqlite);
+    const opportunityRepository = new OpportunityRepository(db);
+    const result = generateWeeklyReport(
+      {
+        generatedAt: options.now,
+        outputDir: "reports"
+      },
+      {
+        opportunityRepository
+      }
+    );
+
+    io.stdout(`Report generated: ${result.filePath}`);
+    io.stdout(`Collected opportunities: ${result.report.metrics.collectedOpportunities}`);
+    io.stdout(`Hot opportunities: ${result.report.metrics.hotOpportunities}`);
+    io.stdout(`Interesting opportunities: ${result.report.metrics.interestingOpportunities}`);
+
+    return 0;
+  } finally {
+    sqlite.close();
+  }
+}
+
+function printUsage(io: CliIo): void {
+  io.stderr("Usage: job-tracker import <csv-file>");
+  io.stderr("Usage: job-tracker report weekly");
 }
