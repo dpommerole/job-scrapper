@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { CreateManualOpportunityInput } from "../application/index.js";
 import type { Opportunity, OpportunityStatus } from "../domain/index.js";
 import { App } from "./App.js";
 
@@ -11,10 +12,17 @@ type OpportunityUpdateApiResponse = {
   error?: string;
 };
 
+type OpportunityCreateApiResponse = {
+  opportunity?: Opportunity;
+  errors?: string[];
+};
+
 export function Root() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [isSavingOpportunity, setIsSavingOpportunity] = useState(false);
   const [opportunitySaveError, setOpportunitySaveError] = useState<string | undefined>();
+  const [isCreatingOpportunity, setIsCreatingOpportunity] = useState(false);
+  const [opportunityCreateError, setOpportunityCreateError] = useState<string | undefined>();
 
   useEffect(() => {
     let isMounted = true;
@@ -69,12 +77,46 @@ export function Root() {
       });
   }
 
+  function createOpportunity(input: CreateManualOpportunityInput) {
+    setIsCreatingOpportunity(true);
+    setOpportunityCreateError(undefined);
+
+    fetch("/api/opportunities", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(input)
+    })
+      .then(async (response) => {
+        const payload = (await response.json()) as OpportunityCreateApiResponse;
+        if (!response.ok || !payload.opportunity) {
+          throw new Error(payload.errors?.join("; ") ?? response.statusText);
+        }
+
+        return payload.opportunity;
+      })
+      .then((createdOpportunity) => {
+        setOpportunities((current) => [createdOpportunity, ...current]);
+        window.history.pushState({}, "", `/opportunities/${encodeURIComponent(createdOpportunity.id)}`);
+      })
+      .catch((error: unknown) => {
+        setOpportunityCreateError(error instanceof Error ? error.message : "Failed to create opportunity");
+      })
+      .finally(() => {
+        setIsCreatingOpportunity(false);
+      });
+  }
+
   return (
     <App
       opportunities={opportunities}
       isSavingOpportunity={isSavingOpportunity}
       opportunitySaveError={opportunitySaveError}
       onUpdateOpportunity={updateOpportunity}
+      isCreatingOpportunity={isCreatingOpportunity}
+      opportunityCreateError={opportunityCreateError}
+      onCreateOpportunity={createOpportunity}
     />
   );
 }

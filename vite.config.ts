@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
-import { listOpportunities, updateOpportunity } from "./src/application/index.js";
+import { createManualOpportunity, listOpportunities, updateOpportunity } from "./src/application/index.js";
+import type { CreateManualOpportunityInput } from "./src/application/index.js";
 import type { OpportunityStatus } from "./src/domain/index.js";
 import { createAppDatabase, createSqliteDatabase, OpportunityRepository, runMigrations } from "./src/storage/index.js";
 
@@ -73,6 +74,55 @@ export default defineConfig({
         });
 
         server.middlewares.use("/api/opportunities", (_request, response) => {
+          if (_request.method === "POST") {
+            let body = "";
+
+            _request.on("data", (chunk: Buffer) => {
+              body += chunk.toString("utf8");
+            });
+
+            _request.on("end", () => {
+              const sqlite = createSqliteDatabase();
+
+              try {
+                const payload = parseCreatePayload(body);
+                if (!payload) {
+                  response.statusCode = 400;
+                  response.setHeader("Content-Type", "application/json");
+                  response.end(JSON.stringify({ errors: ["Invalid opportunity creation payload"] }));
+                  return;
+                }
+
+                runMigrations(sqlite);
+                const db = createAppDatabase(sqlite);
+                const opportunityRepository = new OpportunityRepository(db);
+                const result = createManualOpportunity(payload, { opportunityRepository });
+
+                if (result.status === "invalid") {
+                  response.statusCode = 400;
+                  response.setHeader("Content-Type", "application/json");
+                  response.end(JSON.stringify({ errors: result.errors }));
+                  return;
+                }
+
+                response.statusCode = 201;
+                response.setHeader("Content-Type", "application/json");
+                response.end(JSON.stringify({ opportunity: result.opportunity }));
+              } catch (error) {
+                response.statusCode = 500;
+                response.setHeader("Content-Type", "application/json");
+                response.end(
+                  JSON.stringify({
+                    errors: [error instanceof Error ? error.message : "Failed to create opportunity"]
+                  })
+                );
+              } finally {
+                sqlite.close();
+              }
+            });
+            return;
+          }
+
           const sqlite = createSqliteDatabase();
 
           try {
@@ -102,6 +152,18 @@ export default defineConfig({
     environmentMatchGlobs: [["tests/ui/**/*.test.tsx", "jsdom"]]
   }
 });
+
+function parseCreatePayload(body: string): CreateManualOpportunityInput | undefined {
+  let payload: unknown;
+
+  try {
+    payload = JSON.parse(body);
+  } catch {
+    return undefined;
+  }
+
+  return payload && typeof payload === "object" ? (payload as CreateManualOpportunityInput) : undefined;
+}
 
 function parseUpdatePayload(body: string): { status: OpportunityStatus; notes?: string } | undefined {
   let payload: unknown;

@@ -402,10 +402,82 @@ h1 {
   opacity: 0.7;
 }
 
+.opportunity-form {
+  display: grid;
+  gap: 16px;
+  border: 1px solid #d8ddd5;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.opportunity-form label {
+  display: grid;
+  gap: 6px;
+  color: #526157;
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.opportunity-form input,
+.opportunity-form select,
+.opportunity-form textarea {
+  width: 100%;
+  border: 1px solid #cbd6c7;
+  border-radius: 6px;
+  background: #fbfcfa;
+  color: #16201b;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 10px;
+  text-transform: none;
+}
+
+.opportunity-form textarea {
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.opportunity-form button {
+  justify-self: start;
+  border: 1px solid #244b32;
+  border-radius: 6px;
+  background: #244b32;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  padding: 9px 14px;
+}
+
+.opportunity-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .form-error {
   margin: 0;
   color: #9f2d2d;
   font-weight: 700;
+}
+
+.form-error-list {
+  display: grid;
+  gap: 4px;
+  color: #9f2d2d;
+  font-weight: 700;
+}
+
+.form-error-list p {
+  margin: 0;
 }
 
 @media (max-width: 760px) {
@@ -440,6 +512,10 @@ h1 {
 
   .detail-score-grid,
   .detail-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
     grid-template-columns: 1fr;
   }
 }
