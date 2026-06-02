@@ -20,7 +20,6 @@ describe("App layout and routes", () => {
 
   it.each([
     ["/", "Dashboard"],
-    ["/opportunities", "Opportunities"],
     ["/opportunities/new", "Add opportunity"],
     ["/sources", "Sources"],
     ["/outreach", "Outreach"],
@@ -31,6 +30,13 @@ describe("App layout and routes", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: title })).toBeInTheDocument();
     expect(screen.getByText("No data yet")).toBeInTheDocument();
+  });
+
+  it("renders the opportunities page route", () => {
+    render(<App pathname="/opportunities" />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Opportunities" })).toBeInTheDocument();
+    expect(screen.getByText("No opportunities yet")).toBeInTheDocument();
   });
 
   it("renders a not found page for unknown routes", () => {
