@@ -7,6 +7,7 @@ import type { Source } from "../../src/domain/index.js";
 import {
   createSqliteDatabase,
   createAppDatabase,
+  ImportRunRepository,
   type SqliteDatabase,
   OpportunityRepository,
   runInitialMigration,
@@ -19,6 +20,7 @@ describe("SQLite repositories", () => {
   let sqlite: SqliteDatabase;
   let sourceRepository: SourceRepository;
   let opportunityRepository: OpportunityRepository;
+  let importRunRepository: ImportRunRepository;
 
   beforeEach(() => {
     sqlite = new Database(":memory:");
@@ -26,6 +28,7 @@ describe("SQLite repositories", () => {
     const db = createAppDatabase(sqlite);
     sourceRepository = new SourceRepository(db);
     opportunityRepository = new OpportunityRepository(db);
+    importRunRepository = new ImportRunRepository(db);
   });
 
   afterEach(() => {
@@ -103,5 +106,82 @@ describe("SQLite repositories", () => {
       fileBackedSqlite.close();
       rmSync(tempRoot, { recursive: true, force: true });
     }
+  });
+
+  it("saves and updates import runs without import business logic", () => {
+    const source: Source = {
+      id: "csv-import",
+      name: "CSV import",
+      type: "csv",
+      collectionMethod: "csv",
+      priority: "high",
+      complianceRisk: "low"
+    };
+    sourceRepository.upsert(source);
+
+    importRunRepository.save({
+      id: "import-run-1",
+      sourceId: source.id,
+      type: "csv",
+      status: "running",
+      fileName: "opportunities.csv",
+      startedAt: "2026-06-02T10:00:00.000Z",
+      importedCount: 0,
+      skippedDuplicateCount: 0,
+      failedCount: 0
+    });
+
+    importRunRepository.save({
+      id: "import-run-1",
+      sourceId: source.id,
+      type: "csv",
+      status: "completed",
+      fileName: "opportunities.csv",
+      startedAt: "2026-06-02T10:00:00.000Z",
+      finishedAt: "2026-06-02T10:01:00.000Z",
+      importedCount: 3,
+      skippedDuplicateCount: 1,
+      failedCount: 0,
+      notes: "Repository stores the summary only"
+    });
+
+    expect(importRunRepository.findById("import-run-1")).toEqual({
+      id: "import-run-1",
+      sourceId: source.id,
+      type: "csv",
+      status: "completed",
+      fileName: "opportunities.csv",
+      startedAt: "2026-06-02T10:00:00.000Z",
+      finishedAt: "2026-06-02T10:01:00.000Z",
+      importedCount: 3,
+      skippedDuplicateCount: 1,
+      failedCount: 0,
+      notes: "Repository stores the summary only"
+    });
+  });
+
+  it("lists import runs by start date descending", () => {
+    importRunRepository.save({
+      id: "older-import",
+      type: "manual",
+      status: "completed",
+      startedAt: "2026-06-01T10:00:00.000Z",
+      finishedAt: "2026-06-01T10:05:00.000Z",
+      importedCount: 1,
+      skippedDuplicateCount: 0,
+      failedCount: 0
+    });
+    importRunRepository.save({
+      id: "newer-import",
+      type: "json",
+      status: "failed",
+      startedAt: "2026-06-02T10:00:00.000Z",
+      finishedAt: "2026-06-02T10:03:00.000Z",
+      importedCount: 0,
+      skippedDuplicateCount: 0,
+      failedCount: 1
+    });
+
+    expect(importRunRepository.list().map((importRun) => importRun.id)).toEqual(["newer-import", "older-import"]);
   });
 });
