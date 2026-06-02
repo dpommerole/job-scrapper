@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../src/ui/App.js";
 import { idealVueFreelanceLille } from "../scoring/fixtures.js";
 
@@ -104,5 +104,39 @@ describe("OpportunityDetailPage", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Opportunity not found" })).toBeInTheDocument();
     expect(screen.getByText("No matching opportunity")).toBeInTheDocument();
+  });
+
+  it("submits status and notes updates from the detail page", () => {
+    const onUpdateOpportunity = vi.fn();
+
+    render(
+      <App
+        pathname="/opportunities/detail-vue"
+        opportunities={[detailedOpportunity]}
+        onUpdateOpportunity={onUpdateOpportunity}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Status"), { target: { value: "contacted" } });
+    fireEvent.change(screen.getByLabelText("Notes"), { target: { value: "Intro sent." } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(onUpdateOpportunity).toHaveBeenCalledWith("detail-vue", {
+      status: "contacted",
+      notes: "Intro sent."
+    });
+  });
+
+  it("shows save errors", () => {
+    render(
+      <App
+        pathname="/opportunities/detail-vue"
+        opportunities={[detailedOpportunity]}
+        opportunitySaveError="Failed to save opportunity"
+        onUpdateOpportunity={() => undefined}
+      />
+    );
+
+    expect(screen.getByText("Failed to save opportunity")).toBeInTheDocument();
   });
 });

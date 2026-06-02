@@ -4,6 +4,11 @@ import type { AppDatabase } from "./database.js";
 import type { NewOpportunityRow, OpportunityRow } from "./schema.js";
 import { opportunities } from "./schema.js";
 
+export type OpportunityStatusAndNotesUpdate = {
+  status: Opportunity["status"];
+  notes?: string;
+};
+
 export class OpportunityRepository {
   constructor(private readonly db: AppDatabase) {}
 
@@ -61,6 +66,30 @@ export class OpportunityRepository {
 
   list(): Opportunity[] {
     return this.db.select().from(opportunities).orderBy(desc(opportunities.collectedAt)).all().map(toOpportunity);
+  }
+
+  updateStatusAndNotes(id: string, update: OpportunityStatusAndNotesUpdate): Opportunity | undefined {
+    const existing = this.findById(id);
+    if (!existing) return undefined;
+
+    const updatedAt = new Date().toISOString();
+
+    this.db
+      .update(opportunities)
+      .set({
+        status: update.status,
+        notes: update.notes,
+        updatedAt
+      })
+      .where(eq(opportunities.id, id))
+      .run();
+
+    return {
+      ...existing,
+      status: update.status,
+      notes: update.notes,
+      updatedAt
+    };
   }
 }
 
