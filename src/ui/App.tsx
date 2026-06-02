@@ -1,7 +1,9 @@
+import type { CreateManualOpportunityInput } from "../application/index.js";
 import type { Opportunity, OpportunityStatus } from "../domain/index.js";
 import { AppLayout } from "./components/AppLayout.js";
 import { EmptyPage } from "./pages/EmptyPage.js";
 import { NotFoundPage } from "./pages/NotFoundPage.js";
+import { OpportunityCreatePage } from "./pages/OpportunityCreatePage.js";
 import { OpportunityDetailPage } from "./pages/OpportunityDetailPage.js";
 import { OpportunitiesPage } from "./pages/OpportunitiesPage.js";
 import { resolveRoute } from "./routes.js";
@@ -12,6 +14,9 @@ export type AppProps = {
   isSavingOpportunity?: boolean;
   opportunitySaveError?: string | undefined;
   onUpdateOpportunity?: (id: string, update: { status: OpportunityStatus; notes: string }) => void;
+  isCreatingOpportunity?: boolean;
+  opportunityCreateError?: string | undefined;
+  onCreateOpportunity?: (input: CreateManualOpportunityInput) => void;
 };
 
 export function App({
@@ -19,7 +24,10 @@ export function App({
   opportunities = [],
   isSavingOpportunity,
   opportunitySaveError,
-  onUpdateOpportunity
+  onUpdateOpportunity,
+  isCreatingOpportunity,
+  opportunityCreateError,
+  onCreateOpportunity
 }: AppProps) {
   const route = resolveRoute(pathname);
   const opportunityId = getOpportunityIdFromPath(pathname);
@@ -28,6 +36,12 @@ export function App({
     <AppLayout currentPath={pathname}>
       {route?.path === "/opportunities" ? (
         <OpportunitiesPage opportunities={opportunities} />
+      ) : route?.path === "/opportunities/new" ? (
+        <OpportunityCreatePage
+          isCreating={isCreatingOpportunity}
+          createError={opportunityCreateError}
+          onCreateOpportunity={onCreateOpportunity}
+        />
       ) : route?.path === "/opportunities/:id" ? (
         <OpportunityDetailPage
           opportunity={opportunities.find((opportunity) => opportunity.id === opportunityId)}

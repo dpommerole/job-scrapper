@@ -20,7 +20,6 @@ describe("App layout and routes", () => {
 
   it.each([
     ["/", "Dashboard"],
-    ["/opportunities/new", "Add opportunity"],
     ["/sources", "Sources"],
     ["/outreach", "Outreach"],
     ["/reports", "Reports"]
@@ -36,6 +35,13 @@ describe("App layout and routes", () => {
 
     expect(screen.getByRole("heading", { level: 1, name: "Opportunities" })).toBeInTheDocument();
     expect(screen.getByText("No opportunities yet")).toBeInTheDocument();
+  });
+
+  it("renders the add opportunity route", () => {
+    render(<App pathname="/opportunities/new" />);
+
+    expect(screen.getByRole("heading", { level: 1, name: "Add opportunity" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Create opportunity" })).toBeInTheDocument();
   });
 
   it("renders a detail not found page for unknown opportunity ids", () => {

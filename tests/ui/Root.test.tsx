@@ -104,4 +104,38 @@ describe("Root", () => {
 
     expect(await screen.findByText("Could not save")).toBeInTheDocument();
   });
+
+  it("creates an opportunity and navigates to its detail page", async () => {
+    window.history.pushState({}, "", "/opportunities/new");
+    const createdOpportunity = {
+      ...idealVueFreelanceLille,
+      id: "manual-created-opportunity",
+      title: "Manual Vue opportunity",
+      score: 81,
+      opportunityClass: "hot" as const
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ opportunities: [] })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ opportunity: createdOpportunity })
+        })
+    );
+
+    render(<Root />);
+
+    fireEvent.change(screen.getByLabelText("Source"), { target: { value: "Manual lead" } });
+    fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Manual Vue opportunity" } });
+    fireEvent.change(screen.getByLabelText("Description"), { target: { value: "Manual opportunity description." } });
+    fireEvent.click(screen.getByRole("button", { name: "Create opportunity" }));
+
+    await screen.findByRole("heading", { level: 1, name: "Manual Vue opportunity" });
+    expect(window.location.pathname).toBe("/opportunities/manual-created-opportunity");
+  });
 });
