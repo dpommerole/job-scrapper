@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "../../src/ui/App.js";
 import { idealVueFreelanceLille, reactRemoteFreelance } from "../scoring/fixtures.js";
@@ -15,6 +15,19 @@ const scoredReactOpportunity = {
   ...reactRemoteFreelance,
   score: 72,
   opportunityClass: "interesting" as const
+};
+
+const archivedCdiOpportunity = {
+  ...scoredReactOpportunity,
+  id: "archived-cdi",
+  title: "Frontend maintenance CDI",
+  source: "Manual",
+  status: "archived" as const,
+  remotePolicy: "onsite" as const,
+  contractType: "cdi" as const,
+  score: 32,
+  opportunityClass: "reject" as const,
+  collectedAt: "2026-05-30T10:00:00.000Z"
 };
 
 describe("OpportunitiesPage", () => {
@@ -83,5 +96,69 @@ describe("OpportunitiesPage", () => {
 
     expect(within(sparseRow).getByText("n/a")).toBeInTheDocument();
     expect(within(sparseRow).getByText("Not scored")).toBeInTheDocument();
+  });
+
+  it("combines filters and keeps the state readable", () => {
+    render(
+      <App
+        pathname="/opportunities"
+        opportunities={[scoredVueOpportunity, scoredReactOpportunity, archivedCdiOpportunity]}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Status"), { target: { value: "new" } });
+    fireEvent.change(screen.getByLabelText("Source"), { target: { value: "LeHibou" } });
+    fireEvent.change(screen.getByLabelText("Search"), { target: { value: "react remote" } });
+
+    expect(screen.getByRole("article", { name: scoredReactOpportunity.title })).toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: scoredVueOpportunity.title })).not.toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: archivedCdiOpportunity.title })).not.toBeInTheDocument();
+    expect(screen.getByText("1 of 3 opportunities · 3 active filters")).toBeInTheDocument();
+  });
+
+  it("filters by class, remote policy, contract type and minimum score", () => {
+    render(
+      <App
+        pathname="/opportunities"
+        opportunities={[scoredVueOpportunity, scoredReactOpportunity, archivedCdiOpportunity]}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Class"), { target: { value: "hot" } });
+    fireEvent.change(screen.getByLabelText("Remote policy"), { target: { value: "hybrid" } });
+    fireEvent.change(screen.getByLabelText("Contract"), { target: { value: "freelance" } });
+    fireEvent.change(screen.getByLabelText("Minimum score"), { target: { value: "80" } });
+
+    expect(screen.getByRole("article", { name: scoredVueOpportunity.title })).toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: scoredReactOpportunity.title })).not.toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: archivedCdiOpportunity.title })).not.toBeInTheDocument();
+    expect(screen.getByText("1 of 3 opportunities · 4 active filters")).toBeInTheDocument();
+  });
+
+  it("sorts opportunities by score and collected date", () => {
+    render(
+      <App
+        pathname="/opportunities"
+        opportunities={[
+          { ...scoredVueOpportunity, collectedAt: "2026-06-01T10:00:00.000Z" },
+          { ...scoredReactOpportunity, collectedAt: "2026-06-02T10:00:00.000Z" },
+          archivedCdiOpportunity
+        ]}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Sort by"), { target: { value: "score-desc" } });
+    expect(screen.getAllByRole("article").map((row) => row.getAttribute("aria-label"))).toEqual([
+      scoredVueOpportunity.title,
+      scoredReactOpportunity.title,
+      archivedCdiOpportunity.title
+    ]);
+
+    fireEvent.change(screen.getByLabelText("Sort by"), { target: { value: "collected-desc" } });
+    expect(screen.getAllByRole("article").map((row) => row.getAttribute("aria-label"))).toEqual([
+      scoredReactOpportunity.title,
+      scoredVueOpportunity.title,
+      archivedCdiOpportunity.title
+    ]);
   });
 });

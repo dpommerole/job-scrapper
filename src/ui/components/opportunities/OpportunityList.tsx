@@ -2,14 +2,20 @@ import type { OpportunityListItemViewModel } from "../../view-models/opportunity
 
 export type OpportunityListProps = {
   opportunities: OpportunityListItemViewModel[];
+  emptyTitle?: string;
+  emptyDescription?: string;
 };
 
-export function OpportunityList({ opportunities }: OpportunityListProps) {
+export function OpportunityList({
+  opportunities,
+  emptyTitle = "No opportunities yet",
+  emptyDescription = "Imported or manually added opportunities will appear here once they are available."
+}: OpportunityListProps) {
   if (opportunities.length === 0) {
     return (
       <section className="empty-state" aria-label="Empty opportunities">
-        <h2>No opportunities yet</h2>
-        <p>Imported or manually added opportunities will appear here once they are available.</p>
+        <h2>{emptyTitle}</h2>
+        <p>{emptyDescription}</p>
       </section>
     );
   }
