@@ -49,7 +49,25 @@ export const opportunities = sqliteTable("opportunities", {
   createdAt: text("created_at").notNull()
 });
 
+export const importRuns = sqliteTable("import_runs", {
+  id: text("id").primaryKey(),
+  sourceId: text("source_id").references(() => sources.id),
+  type: text("type").notNull(),
+  status: text("status").notNull(),
+  fileName: text("file_name"),
+  startedAt: text("started_at").notNull(),
+  finishedAt: text("finished_at"),
+  importedCount: integer("imported_count").notNull(),
+  skippedDuplicateCount: integer("skipped_duplicate_count").notNull(),
+  failedCount: integer("failed_count").notNull(),
+  notes: text("notes"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull()
+});
+
 export type SourceRow = typeof sources.$inferSelect;
 export type NewSourceRow = typeof sources.$inferInsert;
 export type OpportunityRow = typeof opportunities.$inferSelect;
 export type NewOpportunityRow = typeof opportunities.$inferInsert;
+export type ImportRunRow = typeof importRuns.$inferSelect;
+export type NewImportRunRow = typeof importRuns.$inferInsert;

@@ -361,3 +361,142 @@ export type SourceHealth = {
   nextReviewAt?: string
 }
 ```
+# Import and Storage
+
+## Purpose
+
+The import and storage layer makes the job tracker usable with real data.
+
+The goal is to import opportunities from safe sources, persist them, score them, and make them available for reporting and follow-up tracking.
+
+## Phase 2 scope
+
+This phase includes:
+
+1. SQLite storage
+2. Database schema
+3. Repository layer
+4. CSV import
+5. Import run tracking
+6. Deduplication before insert
+7. Scoring after import
+8. Import summary
+9. Integration tests
+
+## Non-goals
+
+This phase does not include:
+
+- web scraping
+- LinkedIn automation
+- browser automation
+- Gmail integration
+- dashboard UI
+- multi-user accounts
+- production deployment
+
+## Recommended stack
+
+Use:
+
+- SQLite
+- Drizzle
+- TypeScript
+- Vitest
+
+## Core tables
+
+### opportunities
+
+Stores normalized job opportunities.
+
+Main fields:
+
+- id
+- source
+- sourceUrl
+- title
+- company
+- recruiterName
+- recruiterCompany
+- location
+- remotePolicy
+- contractType
+- seniority
+- duration
+- startDate
+- rateMin
+- rateMax
+- currency
+- requiredSkills
+- niceToHaveSkills
+- description
+- publishedAt
+- collectedAt
+- updatedAt
+- status
+- score
+- opportunityClass
+- positiveSignals
+- negativeSignals
+- missingInformation
+- notes
+
+### sources
+
+Stores known opportunity sources.
+
+Main fields:
+
+- id
+- name
+- url
+- type
+- collectionMethod
+- priority
+- complianceRisk
+- notes
+
+### outreach
+
+Stores messages and follow-up status.
+
+Main fields:
+
+- id
+- opportunityId
+- recruiterName
+- recruiterCompany
+- channel
+- status
+- subject
+- message
+- sentAt
+- followUpAt
+- repliedAt
+- notes
+
+### import_runs
+
+Stores import history.
+
+Main fields:
+
+- id
+- source
+- fileName
+- startedAt
+- finishedAt
+- totalRows
+- importedCount
+- duplicateCount
+- invalidCount
+- warnings
+- status
+
+## CSV import format
+
+Recommended columns:
+
+```csv
+source,sourceUrl,title,company,recruiterName,recruiterCompany,location,remotePolicy,contractType,seniority,duration,startDate,rateMin,rateMax,currency,requiredSkills,niceToHaveSkills,description,publishedAt,notes
