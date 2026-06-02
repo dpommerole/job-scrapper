@@ -2,6 +2,12 @@ export { parseCsv } from "./csvParser.js";
 export type { CsvRow } from "./csvParser.js";
 export {
   normalizeCsvOpportunityRow,
-  normalizeCsvOpportunityRows
+  normalizeCsvOpportunityRows,
+  normalizeValidCsvOpportunityRows,
+  validateCsvOpportunityRow
 } from "./csvOpportunityNormalizer.js";
-export type { NormalizeCsvOpportunityOptions } from "./csvOpportunityNormalizer.js";
+export type {
+  CsvOpportunityNormalizationResult,
+  InvalidCsvOpportunityRow,
+  NormalizeCsvOpportunityOptions
+} from "./csvOpportunityNormalizer.js";

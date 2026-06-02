@@ -5,11 +5,52 @@ export type NormalizeCsvOpportunityOptions = {
   collectedAt?: string;
 };
 
+export type InvalidCsvOpportunityRow = {
+  rowNumber: number;
+  row: CsvRow;
+  reasons: string[];
+};
+
+export type CsvOpportunityNormalizationResult = {
+  opportunities: Opportunity[];
+  invalidRows: InvalidCsvOpportunityRow[];
+};
+
+const requiredColumns = ["source", "title", "description", "requiredSkills"] as const;
+
 export function normalizeCsvOpportunityRows(
   rows: CsvRow[],
   options: NormalizeCsvOpportunityOptions = {}
 ): Opportunity[] {
   return rows.map((row, index) => normalizeCsvOpportunityRow(row, index, options));
+}
+
+export function normalizeValidCsvOpportunityRows(
+  rows: CsvRow[],
+  options: NormalizeCsvOpportunityOptions = {}
+): CsvOpportunityNormalizationResult {
+  const opportunities: Opportunity[] = [];
+  const invalidRows: InvalidCsvOpportunityRow[] = [];
+
+  rows.forEach((row, index) => {
+    const reasons = validateCsvOpportunityRow(row);
+
+    if (reasons.length > 0) {
+      invalidRows.push({
+        rowNumber: index + 2,
+        row,
+        reasons
+      });
+      return;
+    }
+
+    opportunities.push(normalizeCsvOpportunityRow(row, index, options));
+  });
+
+  return {
+    opportunities,
+    invalidRows
+  };
 }
 
 export function normalizeCsvOpportunityRow(
@@ -53,6 +94,38 @@ export function normalizeCsvOpportunityRow(
   };
 }
 
+export function validateCsvOpportunityRow(row: CsvRow): string[] {
+  const reasons: string[] = [];
+
+  for (const column of requiredColumns) {
+    if (!optional(row[column])) {
+      reasons.push(`Missing required field: ${column}`);
+    }
+  }
+
+  if (optional(row.remotePolicy) && normalizeRemotePolicy(row.remotePolicy) === "unknown") {
+    reasons.push(`Invalid remotePolicy: ${row.remotePolicy}`);
+  }
+
+  if (optional(row.contractType) && normalizeContractType(row.contractType) === "unknown") {
+    reasons.push(`Invalid contractType: ${row.contractType}`);
+  }
+
+  for (const rateField of ["rateMin", "rateMax"] as const) {
+    if (optional(row[rateField]) && parseOptionalNumber(row[rateField]) === undefined) {
+      reasons.push(`Invalid ${rateField}: ${row[rateField]}`);
+    }
+  }
+
+  for (const dateField of ["startDate", "publishedAt"] as const) {
+    if (optional(row[dateField]) && !isValidDateLike(row[dateField])) {
+      reasons.push(`Invalid ${dateField}: ${row[dateField]}`);
+    }
+  }
+
+  return reasons;
+}
+
 function splitSkills(value: string | undefined): string[] {
   return (value ?? "")
     .split(";")
@@ -93,6 +166,14 @@ function parseOptionalNumber(value: string | undefined): number | undefined {
 
   const parsed = Number(match[0]);
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function isValidDateLike(value: string | undefined): boolean {
+  const trimmed = optional(value);
+  if (!trimmed) return true;
+  if (trimmed.toLowerCase() === "asap") return true;
+
+  return /^\d{4}-\d{2}-\d{2}(?:T.*)?$/.test(trimmed) && !Number.isNaN(Date.parse(trimmed));
 }
 
 function createCsvOpportunityId(index: number, title: string): string {

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   normalizeCsvOpportunityRows,
+  normalizeValidCsvOpportunityRows,
   parseCsv
 } from "../../src/imports/index.js";
 
@@ -72,5 +73,48 @@ describe("CSV opportunity import parsing", () => {
 
   it("throws on malformed quoted CSV input", () => {
     expect(() => parseCsv("title,description\nBad,\"unterminated")).toThrow("unterminated quoted field");
+  });
+
+  it("returns invalid rows with reasons without dropping valid rows", () => {
+    const rows = parseCsv(`source,title,description,requiredSkills,remotePolicy,contractType,rateMin,startDate,publishedAt
+Manual CSV,Valid Vue mission,Enough detail to normalize safely,Vue.js;TypeScript,remote,freelance,650,ASAP,2026-06-02
+,Missing source,Has a description,Vue.js,remote,freelance,600,2026-07-01,2026-06-02
+Manual CSV,Bad values,Has a description,TypeScript,spaceship,permanent,not-a-rate,tomorrow,not-a-date`);
+
+    const result = normalizeValidCsvOpportunityRows(rows, {
+      collectedAt: "2026-06-02T12:00:00.000Z"
+    });
+
+    expect(result.opportunities).toHaveLength(1);
+    expect(result.opportunities[0]).toMatchObject({
+      source: "Manual CSV",
+      title: "Valid Vue mission",
+      remotePolicy: "remote",
+      contractType: "freelance",
+      requiredSkills: ["Vue.js", "TypeScript"],
+      rateMin: 650
+    });
+    expect(result.invalidRows).toEqual([
+      {
+        rowNumber: 3,
+        row: expect.objectContaining({
+          title: "Missing source"
+        }),
+        reasons: ["Missing required field: source"]
+      },
+      {
+        rowNumber: 4,
+        row: expect.objectContaining({
+          title: "Bad values"
+        }),
+        reasons: [
+          "Invalid remotePolicy: spaceship",
+          "Invalid contractType: permanent",
+          "Invalid rateMin: not-a-rate",
+          "Invalid startDate: tomorrow",
+          "Invalid publishedAt: not-a-date"
+        ]
+      }
+    ]);
   });
 });
