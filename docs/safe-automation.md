@@ -94,6 +94,7 @@ Expected output:
 - source
 
 The generic RSS collector parses configured feed URLs and should be tested with local XML fixtures. Unit tests must not depend on live feeds.
+RSS collection can be connected to the import pipeline to normalize valid feed items, deduplicate them, score imported opportunities, persist them, and update `collector_runs` counters.
 
 ### Email alert parser
 

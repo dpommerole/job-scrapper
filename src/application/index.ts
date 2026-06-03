@@ -1,6 +1,7 @@
 export { collectOpportunities } from "./collect-opportunities/index.js";
 export { createManualOpportunity } from "./create-opportunity/index.js";
 export { generateWeeklyReport } from "./generate-weekly-report/index.js";
+export { importRssCollectedOpportunities } from "./import-collected-opportunities/index.js";
 export { importCsvOpportunities } from "./import-opportunities/index.js";
 export { listOpportunities } from "./list-opportunities/index.js";
 export { createOutreachDraft, generateOutreachDraft, listOutreach, updateOutreach } from "./outreach/index.js";
@@ -22,6 +23,11 @@ export type {
   ImportCsvOpportunitiesInput,
   ImportCsvOpportunitiesSummary
 } from "./import-opportunities/index.js";
+export type {
+  ImportRssCollectedOpportunitiesDependencies,
+  ImportRssCollectedOpportunitiesInput,
+  ImportRssCollectedOpportunitiesSummary
+} from "./import-collected-opportunities/index.js";
 export type { ListOpportunitiesDependencies } from "./list-opportunities/index.js";
 export type {
   CreateOutreachDraftDependencies,
