@@ -102,6 +102,8 @@ Useful for:
 - saved search alerts
 - manual forwarded emails
 
+Email parsing should work from `.eml`, `.txt`, or copied email content provided by the user. It should not connect to Gmail, Outlook, or recruiter inboxes unless a later phase explicitly adds an authorized API-based integration.
+
 Expected output:
 
 - subject
