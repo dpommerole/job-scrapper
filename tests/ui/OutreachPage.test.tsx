@@ -51,6 +51,37 @@ describe("OutreachPage", () => {
     expect(onUpdateOutreach).toHaveBeenCalledWith("outreach-1", { status: "replied" });
   });
 
+  it("updates follow-up date and notes", () => {
+    const onUpdateOutreach = vi.fn();
+    render(
+      <OutreachPage
+        opportunities={[idealVueFreelanceLille]}
+        outreachItems={[dueOutreach]}
+        onUpdateOutreach={onUpdateOutreach}
+      />
+    );
+
+    fireEvent.change(screen.getAllByLabelText("Follow-up date")[1], { target: { value: "2026-06-05" } });
+    fireEvent.click(screen.getByRole("button", { name: "Set follow-up" }));
+    fireEvent.change(screen.getByLabelText("Notes"), { target: { value: "Follow-up planned after first reply." } });
+    fireEvent.click(screen.getByRole("button", { name: "Save notes" }));
+
+    expect(onUpdateOutreach).toHaveBeenCalledWith("outreach-1", { followUpAt: "2026-06-05" });
+    expect(onUpdateOutreach).toHaveBeenCalledWith("outreach-1", { notes: "Follow-up planned after first reply." });
+  });
+
+  it("shows outreach save errors", () => {
+    render(
+      <OutreachPage
+        opportunities={[idealVueFreelanceLille]}
+        outreachItems={[dueOutreach]}
+        outreachSaveError="Could not save outreach"
+      />
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Could not save outreach");
+  });
+
   it("creates a draft from a selected opportunity", () => {
     const onCreateOutreachDraft = vi.fn();
     render(

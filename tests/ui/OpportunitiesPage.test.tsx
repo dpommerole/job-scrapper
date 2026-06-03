@@ -116,6 +116,28 @@ describe("OpportunitiesPage", () => {
     expect(screen.getByText("1 of 3 opportunities · 3 active filters")).toBeInTheDocument();
   });
 
+  it("resets filters after a narrowed search", () => {
+    render(
+      <App
+        pathname="/opportunities"
+        opportunities={[scoredVueOpportunity, scoredReactOpportunity, archivedCdiOpportunity]}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Search"), { target: { value: "vue" } });
+    fireEvent.change(screen.getByLabelText("Status"), { target: { value: "interesting" } });
+
+    expect(screen.getByRole("article", { name: scoredVueOpportunity.title })).toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: scoredReactOpportunity.title })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    expect(screen.getByRole("article", { name: scoredVueOpportunity.title })).toBeInTheDocument();
+    expect(screen.getByRole("article", { name: scoredReactOpportunity.title })).toBeInTheDocument();
+    expect(screen.getByRole("article", { name: archivedCdiOpportunity.title })).toBeInTheDocument();
+    expect(screen.getByText("3 of 3 opportunities · 0 active filters")).toBeInTheDocument();
+  });
+
   it("filters by class, remote policy, contract type and minimum score", () => {
     render(
       <App
