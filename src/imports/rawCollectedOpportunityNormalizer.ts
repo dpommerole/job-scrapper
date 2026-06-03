@@ -93,7 +93,7 @@ function normalizeRawCollectedOpportunity(
 }
 
 function createRawOpportunityId(rawOpportunity: RawCollectedOpportunity, index: number, title: string): string {
-  const stableValue = optional(rawOpportunity.url) ?? optional(rawOpportunity.sourceUrl) ?? title;
+  const stableValue = optional(rawOpportunity.url) ?? title;
   const slug = normalize(`${rawOpportunity.sourceId}-${stableValue}`).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   return `collected-${index + 1}${slug ? `-${slug}` : ""}`;
 }
