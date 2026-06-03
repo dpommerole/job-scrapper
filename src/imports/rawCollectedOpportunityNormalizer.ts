@@ -68,7 +68,7 @@ function normalizeRawCollectedOpportunity(
   return {
     id: optional(rawOpportunity.id) ?? createRawOpportunityId(rawOpportunity, index, title),
     source: rawOpportunity.sourceName,
-    sourceUrl: optional(rawOpportunity.url) ?? optional(rawOpportunity.sourceUrl),
+    sourceUrl: optional(rawOpportunity.url),
     title,
     company: optional(rawOpportunity.company),
     recruiterName: optional(rawOpportunity.recruiterName),
