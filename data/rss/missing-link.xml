@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Frontend missions</title>
+    <item>
+      <guid>rss-missing-link</guid>
+      <title>Senior Frontend Architect</title>
+      <description>Mission copied from a feed item without a link.</description>
+      <pubDate>Wed, 03 Jun 2026 08:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -93,6 +93,8 @@ Expected output:
 - published date
 - source
 
+The generic RSS collector parses configured feed URLs and should be tested with local XML fixtures. Unit tests must not depend on live feeds.
+
 ### Email alert parser
 
 Useful for:
