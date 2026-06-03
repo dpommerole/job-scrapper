@@ -5,6 +5,8 @@ import {
   createOutreachDraft,
   listOpportunities,
   listOutreach,
+  listReports,
+  readReport,
   updateOpportunity,
   updateOutreach
 } from "./src/application/index.js";
@@ -28,6 +30,41 @@ export default defineConfig({
     {
       name: "job-tracker-opportunities-api",
       configureServer(server) {
+        server.middlewares.use("/api/reports/", (request, response, next) => {
+          if (request.method !== "GET") {
+            next();
+            return;
+          }
+
+          const id = decodeURIComponent((request.url ?? "").replace(/^\//, ""));
+          if (!id) {
+            next();
+            return;
+          }
+
+          const report = readReport({ id });
+
+          if (!report) {
+            response.statusCode = 404;
+            response.setHeader("Content-Type", "application/json");
+            response.end(JSON.stringify({ error: "Report not found" }));
+            return;
+          }
+
+          response.setHeader("Content-Type", "application/json");
+          response.end(JSON.stringify({ report }));
+        });
+
+        server.middlewares.use("/api/reports", (request, response, next) => {
+          if (request.method !== "GET") {
+            next();
+            return;
+          }
+
+          response.setHeader("Content-Type", "application/json");
+          response.end(JSON.stringify({ reports: listReports() }));
+        });
+
         server.middlewares.use("/api/outreach/", (request, response, next) => {
           if (request.method !== "PATCH") {
             next();

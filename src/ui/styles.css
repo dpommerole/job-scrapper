@@ -370,6 +370,104 @@ h1 {
   gap: 8px;
 }
 
+.reports-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.reports-heading {
+  grid-column: 1 / -1;
+}
+
+.report-list {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.report-list-item {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  border: 1px solid #d8ddd5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #16201b;
+  cursor: pointer;
+  font: inherit;
+  padding: 14px;
+  text-align: left;
+}
+
+.report-list-item[aria-pressed="true"] {
+  border-color: #244b32;
+  background: #eef2ec;
+}
+
+.report-list-item span {
+  font-weight: 800;
+}
+
+.report-list-item small {
+  color: #607166;
+  font-weight: 650;
+}
+
+.report-detail {
+  min-width: 0;
+}
+
+.markdown-report {
+  border: 1px solid #d8ddd5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #24352b;
+  line-height: 1.65;
+  padding: 24px;
+}
+
+.markdown-report h1 {
+  margin-bottom: 8px;
+  font-size: 1.6rem;
+}
+
+.markdown-report h2 {
+  margin: 24px 0 10px;
+  font-size: 1.05rem;
+}
+
+.markdown-report h3 {
+  margin: 18px 0 8px;
+  font-size: 0.92rem;
+}
+
+.markdown-report p,
+.markdown-report ul,
+.markdown-report table {
+  margin-bottom: 16px;
+}
+
+.markdown-report table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.markdown-report th,
+.markdown-report td {
+  border: 1px solid #d8ddd5;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-report th {
+  background: #eef2ec;
+  color: #26382d;
+  font-weight: 800;
+}
+
 .detail-panel {
   border: 1px solid #d8ddd5;
   border-radius: 8px;

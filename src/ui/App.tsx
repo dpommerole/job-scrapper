@@ -1,4 +1,4 @@
-import type { CreateManualOpportunityInput } from "../application/index.js";
+import type { CreateManualOpportunityInput, ReportDetail, ReportSummary } from "../application/index.js";
 import type { Opportunity, OpportunityStatus, Outreach, OutreachChannel, OutreachStatus } from "../domain/index.js";
 import { AppLayout } from "./components/AppLayout.js";
 import { EmptyPage } from "./pages/EmptyPage.js";
@@ -7,6 +7,7 @@ import { OpportunityCreatePage } from "./pages/OpportunityCreatePage.js";
 import { OpportunityDetailPage } from "./pages/OpportunityDetailPage.js";
 import { OutreachPage } from "./pages/OutreachPage.js";
 import { OpportunitiesPage } from "./pages/OpportunitiesPage.js";
+import { ReportsPage } from "./pages/ReportsPage.js";
 import { resolveRoute } from "./routes.js";
 
 export type AppProps = {
@@ -33,6 +34,10 @@ export type AppProps = {
     id: string,
     update: { status?: OutreachStatus; channel?: OutreachChannel; followUpAt?: string; notes?: string }
   ) => void;
+  reports?: ReportSummary[];
+  selectedReport?: ReportDetail | undefined;
+  reportLoadError?: string | undefined;
+  onOpenReport?: (id: string) => void;
 };
 
 export function App({
@@ -49,7 +54,11 @@ export function App({
   isSavingOutreach,
   outreachSaveError,
   onCreateOutreachDraft,
-  onUpdateOutreach
+  onUpdateOutreach,
+  reports = [],
+  selectedReport,
+  reportLoadError,
+  onOpenReport
 }: AppProps) {
   const route = resolveRoute(pathname);
   const opportunityId = getOpportunityIdFromPath(pathname);
@@ -83,6 +92,13 @@ export function App({
           outreachSaveError={outreachSaveError}
           onCreateOutreachDraft={onCreateOutreachDraft}
           onUpdateOutreach={onUpdateOutreach}
+        />
+      ) : route?.path === "/reports" ? (
+        <ReportsPage
+          reports={reports}
+          selectedReport={selectedReport}
+          loadError={reportLoadError}
+          onOpenReport={onOpenReport}
         />
       ) : route ? (
         <EmptyPage route={route} />

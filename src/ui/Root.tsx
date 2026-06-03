@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { CreateManualOpportunityInput } from "../application/index.js";
+import type { CreateManualOpportunityInput, ReportDetail, ReportSummary } from "../application/index.js";
 import type { Opportunity, OpportunityStatus, Outreach, OutreachChannel, OutreachStatus } from "../domain/index.js";
 import { App } from "./App.js";
 
@@ -31,6 +31,15 @@ type OutreachUpdateApiResponse = {
   error?: string;
 };
 
+type ReportsApiResponse = {
+  reports?: ReportSummary[];
+};
+
+type ReportDetailApiResponse = {
+  report?: ReportDetail;
+  error?: string;
+};
+
 export function Root() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [isSavingOpportunity, setIsSavingOpportunity] = useState(false);
@@ -41,6 +50,9 @@ export function Root() {
   const [isCreatingOutreach, setIsCreatingOutreach] = useState(false);
   const [isSavingOutreach, setIsSavingOutreach] = useState(false);
   const [outreachSaveError, setOutreachSaveError] = useState<string | undefined>();
+  const [reports, setReports] = useState<ReportSummary[]>([]);
+  const [selectedReport, setSelectedReport] = useState<ReportDetail | undefined>();
+  const [reportLoadError, setReportLoadError] = useState<string | undefined>();
 
   useEffect(() => {
     let isMounted = true;
@@ -55,6 +67,30 @@ export function Root() {
       .catch(() => {
         if (isMounted) {
           setOpportunities([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (window.location.pathname !== "/reports") return;
+
+    let isMounted = true;
+
+    fetch("/api/reports")
+      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(response.statusText))))
+      .then((payload: ReportsApiResponse) => {
+        if (isMounted && Array.isArray(payload.reports)) {
+          setReports(payload.reports);
+        }
+      })
+      .catch((error: unknown) => {
+        if (isMounted) {
+          setReports([]);
+          setReportLoadError(error instanceof Error ? error.message : "Failed to load reports");
         }
       });
 
@@ -217,6 +253,26 @@ export function Root() {
       });
   }
 
+  function openReport(id: string) {
+    setReportLoadError(undefined);
+
+    fetch(`/api/reports/${encodeURIComponent(id)}`)
+      .then(async (response) => {
+        const payload = (await response.json()) as ReportDetailApiResponse;
+        if (!response.ok || !payload.report) {
+          throw new Error(payload.error ?? response.statusText);
+        }
+
+        return payload.report;
+      })
+      .then((report) => {
+        setSelectedReport(report);
+      })
+      .catch((error: unknown) => {
+        setReportLoadError(error instanceof Error ? error.message : "Failed to open report");
+      });
+  }
+
   return (
     <App
       opportunities={opportunities}
@@ -232,6 +288,10 @@ export function Root() {
       outreachSaveError={outreachSaveError}
       onCreateOutreachDraft={createOutreachDraft}
       onUpdateOutreach={updateOutreachItem}
+      reports={reports}
+      selectedReport={selectedReport}
+      reportLoadError={reportLoadError}
+      onOpenReport={openReport}
     />
   );
 }
