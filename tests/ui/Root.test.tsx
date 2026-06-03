@@ -236,4 +236,41 @@ describe("Root", () => {
       );
     });
   });
+
+  it("loads reports and opens a markdown report", async () => {
+    window.history.pushState({}, "", "/reports");
+    const reportSummary = {
+      id: "2026-06-08-weekly-market-report.md",
+      fileName: "2026-06-08-weekly-market-report.md",
+      title: "Weekly Market Report",
+      generatedDate: "2026-06-08"
+    };
+    const reportDetail = {
+      ...reportSummary,
+      markdown: "# Weekly Market Report\n\n## Actions\n\n- Contact the best opportunity."
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ opportunities: [] })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ reports: [reportSummary] })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ report: reportDetail })
+        })
+    );
+
+    render(<Root />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /Weekly Market Report/ }));
+
+    expect(await screen.findByText("Contact the best opportunity.")).toBeInTheDocument();
+  });
 });

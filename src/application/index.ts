@@ -3,6 +3,7 @@ export { generateWeeklyReport } from "./generate-weekly-report/index.js";
 export { importCsvOpportunities } from "./import-opportunities/index.js";
 export { listOpportunities } from "./list-opportunities/index.js";
 export { createOutreachDraft, generateOutreachDraft, listOutreach, updateOutreach } from "./outreach/index.js";
+export { listReports, readReport } from "./reports/index.js";
 export { updateOpportunity } from "./update-opportunity/index.js";
 export type {
   CreateManualOpportunityDependencies,
@@ -29,4 +30,5 @@ export type {
   UpdateOutreachDependencies,
   UpdateOutreachInput
 } from "./outreach/index.js";
+export type { ListReportsInput, ReadReportInput, ReportDetail, ReportSummary } from "./reports/index.js";
 export type { UpdateOpportunityDependencies, UpdateOpportunityInput } from "./update-opportunity/index.js";
