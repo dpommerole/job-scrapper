@@ -1,3 +1,4 @@
+export { collectOpportunities } from "./collect-opportunities/index.js";
 export { createManualOpportunity } from "./create-opportunity/index.js";
 export { generateWeeklyReport } from "./generate-weekly-report/index.js";
 export { importCsvOpportunities } from "./import-opportunities/index.js";
@@ -5,6 +6,7 @@ export { listOpportunities } from "./list-opportunities/index.js";
 export { createOutreachDraft, generateOutreachDraft, listOutreach, updateOutreach } from "./outreach/index.js";
 export { listReports, readReport } from "./reports/index.js";
 export { updateOpportunity } from "./update-opportunity/index.js";
+export type { CollectOpportunitiesInput } from "./collect-opportunities/index.js";
 export type {
   CreateManualOpportunityDependencies,
   CreateManualOpportunityInput,
