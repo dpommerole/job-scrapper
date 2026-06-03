@@ -1,0 +1,5 @@
+From: alerts@manual-source.example
+Subject: Incomplete alert
+
+Description: A recruiter mentions a frontend architecture mission but the copied alert does not include the title.
+Link: https://manual-source.example/opportunities/incomplete-frontend-architecture

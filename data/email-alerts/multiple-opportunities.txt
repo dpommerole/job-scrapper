@@ -1,0 +1,18 @@
+From: alerts@tech-market.example
+Subject: Two new frontend missions
+
+Job: Senior Frontend React TypeScript
+Company: Scale SaaS
+Location: Paris remote
+Contract: Freelance
+Skills: React; TypeScript; Testing
+Description: Senior frontend mission with testing ownership.
+Link: https://missions.example/react-typescript
+
+Mission: Frontend Design System Lead
+Company: Design Platform
+Location: Remote France
+Contract: Freelance
+Skills: Vue.js; Design system; Storybook
+Description: Build and govern a shared component library.
+Link: https://missions.example/design-system-lead

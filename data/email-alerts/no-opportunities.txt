@@ -1,0 +1,8 @@
+From: newsletters@example.com
+Subject: Weekly market notes
+
+Hello,
+
+This message contains a general market update and no job listing.
+
+Manage alerts: https://newsletters.example.com/preferences

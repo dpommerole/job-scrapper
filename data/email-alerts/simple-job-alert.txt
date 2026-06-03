@@ -1,0 +1,10 @@
+From: alerts@free-work.example
+Subject: Free-Work alert - Vue missions
+
+Title: Lead Frontend Vue 3 TypeScript
+Company: Acme Retail
+Location: Lille France
+Contract: Freelance
+Skills: Vue.js; TypeScript; Pinia
+Description: Architecture frontend mission on an ecommerce platform.
+Link: https://www.free-work.example/jobs/lead-vue-lille
