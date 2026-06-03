@@ -273,4 +273,64 @@ describe("Root", () => {
 
     expect(await screen.findByText("Contact the best opportunity.")).toBeInTheDocument();
   });
+
+  it("loads dashboard support data on the dashboard route", async () => {
+    window.history.pushState({}, "", "/");
+    const dueOutreach = {
+      id: "outreach-1",
+      opportunityId: idealVueFreelanceLille.id,
+      recruiterName: "Marie",
+      relatedOpportunityTitle: idealVueFreelanceLille.title,
+      channel: "email",
+      status: "sent",
+      message: "Bonjour",
+      followUpAt: "2026-06-02",
+      createdAt: "2026-06-01T10:00:00.000Z",
+      updatedAt: "2026-06-01T10:00:00.000Z"
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              opportunities: [
+                {
+                  ...idealVueFreelanceLille,
+                  score: 91,
+                  opportunityClass: "hot"
+                }
+              ]
+            })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              reports: [
+                {
+                  id: "2026-06-03-weekly-market-report.md",
+                  fileName: "2026-06-03-weekly-market-report.md",
+                  title: "Weekly Market Report",
+                  generatedDate: "2026-06-03"
+                }
+              ]
+            })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ outreachItems: [dueOutreach] })
+        })
+    );
+
+    render(<Root />);
+
+    await waitFor(() => {
+      expect(screen.getAllByRole("link", { name: idealVueFreelanceLille.title }).length).toBeGreaterThan(0);
+    });
+    expect(await screen.findByRole("link", { name: "Marie" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Weekly Market Report" })).toBeInTheDocument();
+  });
 });
