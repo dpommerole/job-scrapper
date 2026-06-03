@@ -11,3 +11,12 @@ export type {
   InvalidCsvOpportunityRow,
   NormalizeCsvOpportunityOptions
 } from "./csvOpportunityNormalizer.js";
+export {
+  normalizeValidRawCollectedOpportunities,
+  validateRawCollectedOpportunity
+} from "./rawCollectedOpportunityNormalizer.js";
+export type {
+  InvalidRawCollectedOpportunity,
+  NormalizeRawCollectedOpportunityOptions,
+  RawCollectedOpportunityNormalizationResult
+} from "./rawCollectedOpportunityNormalizer.js";
