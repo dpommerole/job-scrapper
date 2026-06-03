@@ -1,9 +1,33 @@
 import { describe, expect, it } from "vitest";
-import { createOutreachDraft, updateOutreach } from "../../src/application/index.js";
+import { createOutreachDraft, generateOutreachDraft, updateOutreach } from "../../src/application/index.js";
 import type { Opportunity, Outreach } from "../../src/domain/index.js";
 import { idealVueFreelanceLille } from "../scoring/fixtures.js";
 
 describe("outreach application services", () => {
+  it("generates an outreach draft from opportunity details", () => {
+    const draft = generateOutreachDraft(idealVueFreelanceLille);
+
+    expect(draft.subject).toBe(`Mission ${idealVueFreelanceLille.title}`);
+    expect(draft.message).toContain(idealVueFreelanceLille.title);
+    expect(draft.message).toContain("Vue.js");
+    expect(draft.message).toContain("TypeScript");
+    expect(draft.message).toContain("frontend senior");
+    expect(draft.message).toContain("650-750 EUR");
+  });
+
+  it("adds clarification questions when information is missing", () => {
+    const draft = generateOutreachDraft({
+      ...idealVueFreelanceLille,
+      rateMin: undefined,
+      rateMax: undefined,
+      missingInformation: ["rate", "location policy", "client/company context"]
+    });
+
+    expect(draft.message).toContain("quelle est la fourchette de TJM prévue ?");
+    expect(draft.message).toContain("quel est le rythme remote/hybride attendu ?");
+    expect(draft.message).toContain("quel est le contexte client");
+  });
+
   it("creates an outreach draft from an opportunity", () => {
     const saved: Outreach[] = [];
     const result = createOutreachDraft(
@@ -32,6 +56,35 @@ describe("outreach application services", () => {
       relatedOpportunityTitle: idealVueFreelanceLille.title,
       status: "draft",
       channel: "email"
+    });
+  });
+
+  it("saves edited subject and message when provided", () => {
+    const saved: Outreach[] = [];
+    const result = createOutreachDraft(
+      {
+        opportunityId: idealVueFreelanceLille.id,
+        subject: "Custom subject",
+        message: "Custom edited message",
+        now: "2026-06-02T10:00:00.000Z"
+      },
+      {
+        opportunityRepository: {
+          findById: (id: string): Opportunity | undefined => (id === idealVueFreelanceLille.id ? idealVueFreelanceLille : undefined)
+        },
+        outreachRepository: {
+          save: (outreach: Outreach): Outreach => {
+            saved.push(outreach);
+            return outreach;
+          }
+        }
+      }
+    );
+
+    expect(result.status).toBe("created");
+    expect(saved[0]).toMatchObject({
+      subject: "Custom subject",
+      message: "Custom edited message"
     });
   });
 

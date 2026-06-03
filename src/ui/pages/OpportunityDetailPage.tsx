@@ -1,4 +1,5 @@
-import type { Opportunity, OpportunityStatus } from "../../domain/index.js";
+import type { Opportunity, OpportunityStatus, OutreachChannel } from "../../domain/index.js";
+import { OutreachDraftHelper } from "../components/outreach/OutreachDraftHelper.js";
 import { OpportunityDetail } from "../components/opportunities/OpportunityDetail.js";
 import { createOpportunityDetailViewModel } from "../view-models/opportunityDetailViewModel.js";
 
@@ -7,13 +8,24 @@ export type OpportunityDetailPageProps = {
   isSaving?: boolean;
   saveError?: string | undefined;
   onUpdateOpportunity?: (id: string, update: { status: OpportunityStatus; notes: string }) => void;
+  isCreatingOutreach?: boolean;
+  outreachCreateError?: string | undefined;
+  onCreateOutreachDraft?: (input: {
+    opportunityId: string;
+    channel: OutreachChannel;
+    subject: string;
+    message: string;
+  }) => void;
 };
 
 export function OpportunityDetailPage({
   opportunity,
   isSaving,
   saveError,
-  onUpdateOpportunity
+  onUpdateOpportunity,
+  isCreatingOutreach,
+  outreachCreateError,
+  onCreateOutreachDraft
 }: OpportunityDetailPageProps) {
   if (!opportunity) {
     return (
@@ -43,6 +55,12 @@ export function OpportunityDetailPage({
               }
             : undefined
         }
+      />
+      <OutreachDraftHelper
+        opportunity={opportunity}
+        isCreating={isCreatingOutreach}
+        createError={outreachCreateError}
+        onCreateDraft={onCreateOutreachDraft}
       />
     </section>
   );

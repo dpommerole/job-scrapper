@@ -345,15 +345,21 @@ function parseOutreachCreatePayload(body: string): CreateOutreachDraftInput | un
   const channel = (payload as { channel?: unknown }).channel;
   const followUpAt = (payload as { followUpAt?: unknown }).followUpAt;
   const notes = (payload as { notes?: unknown }).notes;
+  const subject = (payload as { subject?: unknown }).subject;
+  const message = (payload as { message?: unknown }).message;
 
   if (typeof opportunityId !== "string" || !opportunityId.trim()) return undefined;
   if (typeof channel !== "undefined" && (typeof channel !== "string" || !outreachChannels.includes(channel))) return undefined;
   if (typeof followUpAt !== "undefined" && typeof followUpAt !== "string") return undefined;
   if (typeof notes !== "undefined" && typeof notes !== "string") return undefined;
+  if (typeof subject !== "undefined" && typeof subject !== "string") return undefined;
+  if (typeof message !== "undefined" && typeof message !== "string") return undefined;
 
   return {
     opportunityId,
     channel: channel as OutreachChannel | undefined,
+    subject,
+    message,
     followUpAt,
     notes
   };

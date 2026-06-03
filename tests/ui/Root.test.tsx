@@ -186,4 +186,54 @@ describe("Root", () => {
       expect(screen.getByText("replied")).toBeInTheDocument();
     });
   });
+
+  it("creates an outreach draft from the opportunity detail helper", async () => {
+    window.history.pushState({}, "", `/opportunities/${idealVueFreelanceLille.id}`);
+    const createdOutreach = {
+      id: "outreach-created",
+      opportunityId: idealVueFreelanceLille.id,
+      channel: "email",
+      status: "draft",
+      subject: "Intro mission Vue",
+      message: "Message edited before saving.",
+      createdAt: "2026-06-02T10:00:00.000Z",
+      updatedAt: "2026-06-02T10:00:00.000Z"
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ opportunities: [idealVueFreelanceLille] })
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve({ outreach: createdOutreach })
+        })
+    );
+
+    render(<Root />);
+
+    await screen.findByRole("heading", { level: 1, name: idealVueFreelanceLille.title });
+
+    fireEvent.change(screen.getByLabelText("Subject"), { target: { value: "Intro mission Vue" } });
+    fireEvent.change(screen.getByLabelText("Message"), { target: { value: "Message edited before saving." } });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenLastCalledWith(
+        "/api/outreach",
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            opportunityId: idealVueFreelanceLille.id,
+            channel: "email",
+            subject: "Intro mission Vue",
+            message: "Message edited before saving."
+          })
+        })
+      );
+    });
+  });
 });

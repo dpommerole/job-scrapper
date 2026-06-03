@@ -149,7 +149,13 @@ export function Root() {
       });
   }
 
-  function createOutreachDraft(input: { opportunityId: string; channel: OutreachChannel; followUpAt?: string }) {
+  function createOutreachDraft(input: {
+    opportunityId: string;
+    channel: OutreachChannel;
+    followUpAt?: string;
+    subject?: string;
+    message?: string;
+  }) {
     setIsCreatingOutreach(true);
     setOutreachSaveError(undefined);
 

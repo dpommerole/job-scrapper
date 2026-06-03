@@ -476,6 +476,7 @@ h1 {
   text-transform: uppercase;
 }
 
+.detail-form input,
 .detail-form select,
 .detail-form textarea {
   width: 100%;

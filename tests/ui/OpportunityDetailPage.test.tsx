@@ -139,4 +139,38 @@ describe("OpportunityDetailPage", () => {
 
     expect(screen.getByText("Failed to save opportunity")).toBeInTheDocument();
   });
+
+  it("pre-fills an editable outreach draft from opportunity data", () => {
+    render(<App pathname="/opportunities/detail-vue" opportunities={[detailedOpportunity]} />);
+
+    expect(screen.getByRole("heading", { level: 2, name: "Outreach draft" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Subject")).toHaveValue(`Mission ${detailedOpportunity.title}`);
+    const draftMessage = screen.getByLabelText("Message") as HTMLTextAreaElement;
+    expect(draftMessage.value).toContain(detailedOpportunity.title);
+    expect(draftMessage.value).toContain("quel est le contexte client");
+    expect(screen.getByRole("button", { name: "Copy draft" })).toBeInTheDocument();
+  });
+
+  it("saves an edited outreach draft from detail page", () => {
+    const onCreateOutreachDraft = vi.fn();
+
+    render(
+      <App
+        pathname="/opportunities/detail-vue"
+        opportunities={[detailedOpportunity]}
+        onCreateOutreachDraft={onCreateOutreachDraft}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText("Subject"), { target: { value: "Intro mission Vue" } });
+    fireEvent.change(screen.getByLabelText("Message"), { target: { value: "Message edited before saving." } });
+    fireEvent.click(screen.getByRole("button", { name: "Save draft" }));
+
+    expect(onCreateOutreachDraft).toHaveBeenCalledWith({
+      opportunityId: "detail-vue",
+      channel: "email",
+      subject: "Intro mission Vue",
+      message: "Message edited before saving."
+    });
+  });
 });
