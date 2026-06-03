@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../src/ui/App.js";
 import { idealVueFreelanceLille } from "../scoring/fixtures.js";
@@ -21,6 +21,7 @@ const detailedOpportunity = {
 describe("OpportunityDetailPage", () => {
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
   });
 
   it("renders the selected opportunity detail", () => {
@@ -172,5 +173,25 @@ describe("OpportunityDetailPage", () => {
       subject: "Intro mission Vue",
       message: "Message edited before saving."
     });
+  });
+
+  it("copies the edited outreach draft", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("navigator", {
+      clipboard: {
+        writeText
+      }
+    });
+
+    render(<App pathname="/opportunities/detail-vue" opportunities={[detailedOpportunity]} />);
+
+    fireEvent.change(screen.getByLabelText("Subject"), { target: { value: "Intro mission Vue" } });
+    fireEvent.change(screen.getByLabelText("Message"), { target: { value: "Message edited before copy." } });
+    fireEvent.click(screen.getByRole("button", { name: "Copy draft" }));
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith("Intro mission Vue\n\nMessage edited before copy.");
+    });
+    expect(screen.getByText("Draft copied")).toBeInTheDocument();
   });
 });

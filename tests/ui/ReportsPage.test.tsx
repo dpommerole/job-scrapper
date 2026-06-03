@@ -61,6 +61,12 @@ describe("ReportsPage", () => {
     expect(within(report).getByText("Contact the Vue lead first.")).toBeInTheDocument();
   });
 
+  it("shows report load errors", () => {
+    render(<ReportsPage reports={[reportSummary]} loadError="Could not open report" />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Could not open report");
+  });
+
   it("renders an empty state", () => {
     render(<ReportsPage reports={[]} />);
 
