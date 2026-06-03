@@ -65,6 +65,26 @@ export const importRuns = sqliteTable("import_runs", {
   updatedAt: text("updated_at").notNull()
 });
 
+export const collectorRuns = sqliteTable("collector_runs", {
+  id: text("id").primaryKey(),
+  sourceId: text("source_id").notNull().references(() => sources.id),
+  collectorName: text("collector_name").notNull(),
+  collectorType: text("collector_type").notNull(),
+  status: text("status").notNull(),
+  startedAt: text("started_at").notNull(),
+  finishedAt: text("finished_at"),
+  collectedCount: integer("collected_count").notNull(),
+  importedCount: integer("imported_count").notNull(),
+  duplicateCount: integer("duplicate_count").notNull(),
+  invalidCount: integer("invalid_count").notNull(),
+  warningCount: integer("warning_count").notNull(),
+  errorCount: integer("error_count").notNull(),
+  warningsJson: text("warnings_json").notNull(),
+  errorsJson: text("errors_json").notNull(),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull()
+});
+
 export const outreachItems = sqliteTable("outreach_items", {
   id: text("id").primaryKey(),
   opportunityId: text("opportunity_id").references(() => opportunities.id),
@@ -89,5 +109,7 @@ export type OpportunityRow = typeof opportunities.$inferSelect;
 export type NewOpportunityRow = typeof opportunities.$inferInsert;
 export type ImportRunRow = typeof importRuns.$inferSelect;
 export type NewImportRunRow = typeof importRuns.$inferInsert;
+export type CollectorRunRow = typeof collectorRuns.$inferSelect;
+export type NewCollectorRunRow = typeof collectorRuns.$inferInsert;
 export type OutreachItemRow = typeof outreachItems.$inferSelect;
 export type NewOutreachItemRow = typeof outreachItems.$inferInsert;

@@ -1,3 +1,4 @@
+export type { CollectorRun, CollectorRunStatus } from "./collectorRun.js";
 export type {
   ContractType,
   Opportunity,
