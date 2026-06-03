@@ -1,6 +1,10 @@
-export { createEmailAlertCollector, parseEmailAlert } from "./collectors/index.js";
+export { createEmailAlertCollector, createRssCollector, parseEmailAlert, parseRssFeed } from "./collectors/index.js";
 export type {
   CreateEmailAlertCollectorInput,
+  CreateRssCollectorInput,
   EmailAlertParseInput,
-  EmailAlertParseResult
+  EmailAlertParseResult,
+  RssFeedFetcher,
+  RssFeedParseInput,
+  RssFeedParseResult
 } from "./collectors/index.js";

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Frontend missions</title>
+    <link>https://rss.example/jobs</link>
+    <description>Senior frontend freelance missions</description>
+    <item>
+      <guid>rss-vue-lille</guid>
+      <title>Lead Frontend Vue TypeScript</title>
+      <link>https://rss.example/jobs/vue-lille</link>
+      <description><![CDATA[Architecture frontend mission with Vue 3 and TypeScript.]]></description>
+      <pubDate>Tue, 02 Jun 2026 10:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <guid>rss-design-system</guid>
+      <title>Design System Frontend Lead</title>
+      <link>https://rss.example/jobs/design-system</link>
+      <description>Build a shared component library.</description>
+      <pubDate>Wed, 03 Jun 2026 08:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>
