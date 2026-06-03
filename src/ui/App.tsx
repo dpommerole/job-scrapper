@@ -1,6 +1,7 @@
 import type { CreateManualOpportunityInput, ReportDetail, ReportSummary } from "../application/index.js";
 import type { Opportunity, OpportunityStatus, Outreach, OutreachChannel, OutreachStatus } from "../domain/index.js";
 import { AppLayout } from "./components/AppLayout.js";
+import { DashboardPage } from "./pages/DashboardPage.js";
 import { EmptyPage } from "./pages/EmptyPage.js";
 import { NotFoundPage } from "./pages/NotFoundPage.js";
 import { OpportunityCreatePage } from "./pages/OpportunityCreatePage.js";
@@ -65,7 +66,9 @@ export function App({
 
   return (
     <AppLayout currentPath={pathname}>
-      {route?.path === "/opportunities" ? (
+      {route?.path === "/" ? (
+        <DashboardPage opportunities={opportunities} outreachItems={outreachItems} reports={reports} />
+      ) : route?.path === "/opportunities" ? (
         <OpportunitiesPage opportunities={opportunities} />
       ) : route?.path === "/opportunities/new" ? (
         <OpportunityCreatePage

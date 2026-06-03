@@ -76,7 +76,7 @@ export function Root() {
   }, []);
 
   useEffect(() => {
-    if (window.location.pathname !== "/reports") return;
+    if (!["/", "/reports"].includes(window.location.pathname)) return;
 
     let isMounted = true;
 
@@ -100,7 +100,7 @@ export function Root() {
   }, []);
 
   useEffect(() => {
-    if (window.location.pathname !== "/outreach") return;
+    if (!["/", "/outreach"].includes(window.location.pathname)) return;
 
     let isMounted = true;
 
