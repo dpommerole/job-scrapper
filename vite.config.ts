@@ -328,7 +328,7 @@ export default defineConfig({
     }
   ],
   test: {
-    environmentMatchGlobs: [["tests/ui/**/*.test.tsx", "jsdom"]]
+    exclude: ["dist/**", "node_modules/**"]
   }
 });
 
