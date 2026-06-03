@@ -1,9 +1,12 @@
-import type { Opportunity, Outreach, OutreachChannel } from "../../domain/index.js";
+import type { Outreach, OutreachChannel } from "../../domain/index.js";
 import type { OpportunityRepository, OutreachRepository } from "../../storage/index.js";
+import { generateOutreachDraft } from "./generateOutreachDraft.js";
 
 export type CreateOutreachDraftInput = {
   opportunityId: string;
   channel?: OutreachChannel;
+  subject?: string;
+  message?: string;
   followUpAt?: string;
   notes?: string;
   now?: string;
@@ -31,6 +34,7 @@ export function createOutreachDraft(
   if (!opportunity) return { status: "missing-opportunity" };
 
   const now = input.now ?? new Date().toISOString();
+  const draftContent = generateOutreachDraft(opportunity);
   const outreach: Outreach = {
     id: createOutreachId(now, opportunity.id),
     opportunityId: opportunity.id,
@@ -39,8 +43,8 @@ export function createOutreachDraft(
     relatedOpportunityTitle: opportunity.title,
     channel: input.channel ?? "email",
     status: "draft",
-    subject: createSubject(opportunity),
-    message: createDraftMessage(opportunity),
+    subject: normalizeOptionalString(input.subject) ?? draftContent.subject,
+    message: normalizeOptionalString(input.message) ?? draftContent.message,
     followUpAt: normalizeOptionalString(input.followUpAt),
     notes: normalizeOptionalString(input.notes),
     createdAt: now,
@@ -56,24 +60,6 @@ export function createOutreachDraft(
 function createOutreachId(now: string, opportunityId: string): string {
   const timestamp = now.replace(/\D/g, "").slice(0, 17) || "draft";
   return `outreach-${timestamp}-${opportunityId}`;
-}
-
-function createSubject(opportunity: Opportunity): string {
-  return `Mission ${opportunity.title}`;
-}
-
-function createDraftMessage(opportunity: Opportunity): string {
-  const recruiterGreeting = opportunity.recruiterName ? `Bonjour ${opportunity.recruiterName},` : "Bonjour,";
-  const companyContext = opportunity.company ? ` chez ${opportunity.company}` : "";
-
-  return [
-    recruiterGreeting,
-    "",
-    `Je vous contacte au sujet de la mission ${opportunity.title}${companyContext}.`,
-    "Je suis développeur frontend senior, principalement Vue.js et TypeScript, et j'aimerais en savoir plus sur le contexte, l'équipe et les modalités.",
-    "",
-    "Est-ce que la mission est toujours ouverte ?"
-  ].join("\n");
 }
 
 function normalizeOptionalString(value: string | undefined): string | undefined {

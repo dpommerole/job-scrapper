@@ -22,7 +22,13 @@ export type AppProps = {
   isCreatingOutreach?: boolean;
   isSavingOutreach?: boolean;
   outreachSaveError?: string | undefined;
-  onCreateOutreachDraft?: (input: { opportunityId: string; channel: OutreachChannel; followUpAt?: string }) => void;
+  onCreateOutreachDraft?: (input: {
+    opportunityId: string;
+    channel: OutreachChannel;
+    followUpAt?: string;
+    subject?: string;
+    message?: string;
+  }) => void;
   onUpdateOutreach?: (
     id: string,
     update: { status?: OutreachStatus; channel?: OutreachChannel; followUpAt?: string; notes?: string }
@@ -64,6 +70,9 @@ export function App({
           isSaving={isSavingOpportunity}
           saveError={opportunitySaveError}
           onUpdateOpportunity={onUpdateOpportunity}
+          isCreatingOutreach={isCreatingOutreach}
+          outreachCreateError={outreachSaveError}
+          onCreateOutreachDraft={onCreateOutreachDraft}
         />
       ) : route?.path === "/outreach" ? (
         <OutreachPage
