@@ -5,7 +5,8 @@ import type { SqliteDatabase } from "./database.js";
 const migrationPaths = [
   "migrations/0001_initial.sql",
   "migrations/0002_import_runs.sql",
-  "migrations/0003_outreach.sql"
+  "migrations/0003_outreach.sql",
+  "migrations/0004_collector_runs.sql"
 ];
 
 export function runMigrations(sqlite: SqliteDatabase): void {

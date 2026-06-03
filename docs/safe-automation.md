@@ -140,6 +140,8 @@ This avoids account automation.
 
 Each collector execution should create a CollectorRun.
 
+Collector run history is stored in `collector_runs` with serialized warnings and errors so failures remain inspectable without coupling collector logic to imports or UI.
+
 Suggested fields:
 
 - id
